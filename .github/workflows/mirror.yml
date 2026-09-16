@@ -36,6 +36,7 @@ jobs:
           cp data/daol_tone_v2.json data/tone_summary.json data/daol_tone_history.json data/ked_street.json _site/
           cp data/daol_pdf_text_cache.json data/daol_messages.json _site/ 2>/dev/null || true
           cp data/daily_brief.json data/naver_fundamentals.json data/price_close_cache.json _site/ 2>/dev/null || true
+          cp data/valuation_history.json _site/ 2>/dev/null || true
 
       - uses: actions/configure-pages@v6
         with:
