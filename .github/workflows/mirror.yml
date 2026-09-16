@@ -1,0 +1,48 @@
+name: 미러 배포 (원본 → 이 조직 Pages)
+
+# gschoie/DAOL-RESEARCH-TONE(공개 원본)의 최신 화면·데이터를 가져와
+# 이 조직 주소의 GitHub Pages로 배포한다. 원본 수정은 원본에서만.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "50 * * * *"   # 매시 50분 — 원본 갱신 후 최대 1시간 내 반영
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 원본 저장소 체크아웃
+        uses: actions/checkout@v5
+        with:
+          repository: gschoie/DAOL-RESEARCH-TONE
+
+      - name: 배포 사이트 조립
+        run: |
+          mkdir -p _site
+          cp site/index.html _site/
+          cp site/chat.html site/keylock.html site/daol_collab_radar.html _site/ 2>/dev/null || true
+          cp data/daol_tone_v2.json data/tone_summary.json data/daol_tone_history.json data/ked_street.json _site/
+          cp data/daol_pdf_text_cache.json data/daol_messages.json _site/ 2>/dev/null || true
+          cp data/daily_brief.json data/naver_fundamentals.json data/price_close_cache.json _site/ 2>/dev/null || true
+
+      - uses: actions/configure-pages@v6
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v5
